@@ -15,7 +15,7 @@ export default {
      socket_port: process.env.SOCKET_PORT,
      allowed_origins: process.env.ALLOWED_ORIGINS,
      jwt: {
-          jwt_secret: process.env.JWT_SECRET,
+          jwt_access_secret: process.env.JWT_SECRET,
           jwt_expire_in: process.env.JWT_EXPIRE_IN,
           jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
           jwt_refresh_expire_in: process.env.JWT_REFRESH_EXPIRE_IN,

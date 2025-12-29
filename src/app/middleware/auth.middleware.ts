@@ -3,8 +3,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import httpStatus from 'http-status';
-import { User } from "../modules/auth/user.model";
 import config from "../config";
+import AppError from '../error/AppError';
+import catchAsync from '../utils/catchAsync';
+import { Admin } from '../modules/Dashboard/admin/admin.model';
+import { User } from '../modules/auth/user.model';
 
 
 const AuthMiddleware = (...userRoles: string[]) => {
@@ -19,7 +22,7 @@ const AuthMiddleware = (...userRoles: string[]) => {
     try {
       decoded = jwt.verify(
         token,
-        config.jwt_access_secret as string,
+        config.jwt.jwt_access_secret as string,
       ) as JwtPayload;
     } catch (err) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'Unauthorized');
