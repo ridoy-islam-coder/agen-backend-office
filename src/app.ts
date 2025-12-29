@@ -1,36 +1,34 @@
-import express from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import express, { Application, Request, Response } from 'express';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import { bookRoutes } from './app/modules/book/routes';
-import { userRoutes } from './app/modules/auth/user.routes';
-import errorHandler from './app/middleware/errorHandler';
+import globalErrorHandler from './app/middleware/globalErrorhandler';
+// import globalErrorHandler from './app/middleware/globalErrorhandler';
+// import notFound from './app/middleware/notfound';
+// import router from './app/routes';
 
-const app = express();
-
-
-app.use(cors());
-app.use(express.json({  limit: '50mb'}));
+const app: Application = express();
+app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-const limiter = rateLimit({windowMs: 20 * 60 * 1000, max: 100, });
-app.use(limiter);
+//parsers
+app.use(express.json());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+  }),
+);
+// application routes
+app.use('/api/v1', router);
+app.get('/', (req: Request, res: Response) => {
+  res.send('server is running');
+});
+app.use(globalErrorHandler);
 
-
-
-//routes
-app.use("/api/v1",bookRoutes)
-app.use("/api/v1",userRoutes)
-
-
-
-
-//error handling middleware
- app.use(errorHandler) 
-
-
-
-app.get('/', (req, res) => {
-  res.send('backen server is oky !')
-})
+//Not Found
+app.use(notFound);
 
 export default app;
