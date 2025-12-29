@@ -7,7 +7,9 @@ import config from "../config";
 import AppError from '../error/AppError';
 import catchAsync from '../utils/catchAsync';
 import { Admin } from '../modules/Dashboard/admin/admin.model';
-import { User } from '../modules/auth/user.model';
+import User from '../modules/user/user.model';
+
+
 
 
 const AuthMiddleware = (...userRoles: string[]) => {
