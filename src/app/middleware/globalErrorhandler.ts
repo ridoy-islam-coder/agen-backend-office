@@ -3,14 +3,12 @@
 import { ErrorRequestHandler } from 'express';
 import { ZodError } from 'zod';
 import AppError from '../error/AppError';
-
-// import config from '../config';
-// import { TErrorSources } from '../interface/error';
-// import handleZodError from '../error/ZodError';
-// import handleValidationError from '../error/ValidationError';
-// import handleDuplicateError from '../error/DuplicateError';
-// import handleCastError from '../error/CastError';
-// import AppError from '../error/AppError';
+import { TErrorSources } from '../interface/error';
+import handleZodError from './../error/ZodError';
+import handleValidationError from '../error/ValidationError';
+import handleDuplicateError from '../error/DuplicateError';
+import handleCastError from '../error/CastError';
+import config from '../config';
 
 const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
   console.log(err.statusCode);
@@ -69,7 +67,7 @@ const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
     message,
     errorSources,
     err,
-    stack: config.NODE_ENV === 'development' ? err?.stack : null,
+    stack: config.node_env === 'development' ? err?.stack : null,
   });
 };
 
