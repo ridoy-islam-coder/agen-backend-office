@@ -5,7 +5,7 @@ import { Request, Response } from 'express';
 import User from '../user/user.model';
 import httpStatus  from 'http-status';
 import AppError from '../../error/AppError';
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import jwt, { JwtPayload, Secret  } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import sendResponse from '../../utils/sendResponse';
@@ -33,7 +33,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
       role: user.role,
     },
     config.jwt.jwt_access_secret as Secret,
-    { expiresIn: config.jwt.jwt_access_expires_in },
+    { expiresIn: '24h' },
   );
 
   const refreshToken = jwt.sign(
@@ -42,7 +42,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
       role: user.role,
     },
     config.jwt.jwt_refresh_secret as Secret,
-    { expiresIn: config.jwt.jwt_refresh_expires_in },
+    { expiresIn: '7d' },
   );
 
   sendResponse(res, {
@@ -134,8 +134,11 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
     const token = jwt.sign(
       { id: decoded.id, role: decoded.role },
       config.jwt.jwt_access_secret as Secret,
-      { expiresIn: config.jwt.jwt_access_expires_in },
+      { expiresIn: '24h' },
     );
+
+
+
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -177,12 +180,12 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
   const accessToken = jwt.sign(
     { id: user._id, role: user.role },
     config.jwt.jwt_access_secret as Secret,
-    { expiresIn: config.jwt.jwt_access_expires_in },
+    { expiresIn: '24h' },
   );
   const refreshToken = jwt.sign(
     { id: user._id, role: user.role },
     config.jwt.jwt_refresh_secret as Secret,
-    { expiresIn: config.jwt.jwt_refresh_expires_in },
+    { expiresIn: '7d' },
   );
 
   sendResponse(res, {
@@ -230,12 +233,12 @@ const facebookLogin = catchAsync(async (req: Request, res: Response) => {
   const accessTokenJwt = jwt.sign(
     { id: user._id, role: user.role },
     config.jwt.jwt_access_secret as Secret,
-    { expiresIn: config.jwt.jwt_access_expires_in },
+    { expiresIn: '24h' },
   );
   const refreshToken = jwt.sign(
     { id: user._id, role: user.role },
     config.jwt.jwt_refresh_secret as Secret,
-    { expiresIn: config.jwt.jwt_refresh_expires_in },
+    { expiresIn: '7d' },
   );
 
   sendResponse(res, {

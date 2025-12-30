@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.join(process.cwd(), '.env') });
 
+
 export default {
      ip_address: process.env.IP_ADDRESS,
      frontend_url: process.env.FONTEND_URL,
@@ -54,3 +55,4 @@ export default {
           password: process.env.SUPER_ADMIN_PASSWORD,
      },
 };
+

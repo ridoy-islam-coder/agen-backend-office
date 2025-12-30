@@ -29,37 +29,84 @@
 // };
 import { z } from 'zod';
 
-const loginZodSchema = z.object({
+// const loginZodSchema = z.object({
+//   body: z.object({
+//     email: z.string({ required_error: 'Email is required' }).email(),
+//     password: z.string({ required_error: 'Password is required' }),
+//   }),
+// });
+
+// const refreshTokenValidationSchema = z.object({
+//   body: z.object({
+//     refreshToken: z.string({ required_error: 'Refresh token is required' }),
+//   }),
+// });
+
+// const changePasswordZodSchema = z.object({
+//   body: z.object({
+//     oldPassword: z.string({ required_error: 'Old password is required' }),
+//     newPassword: z
+//       .string({ required_error: 'New password is required' })
+//       .min(6, 'Password must be at least 6 characters'),
+//   }),
+// });
+
+// const resetPasswordZodSchema = z
+//   .object({
+//     body: z.object({
+//       newPassword: z
+//         .string({ required_error: 'New password is required' })
+//         .min(6, 'Password must be at least 6 characters'),
+//       confirmPassword: z.string({
+//         required_error: 'Confirm password is required',
+//       }),
+//     }),
+//   })
+//   .refine((data) => data.body.newPassword === data.body.confirmPassword, {
+//     message: 'Passwords do not match',
+//     path: ['body.confirmPassword'],
+//   });
+
+// const forgotPasswordZodSchema = z.object({
+//   body: z.object({
+//     email: z.string().email({ message: 'Must be a valid email address' }),
+//   }),
+// });
+
+// const deleteAccountZodSchema = z.object({
+//   body: z.object({
+//     password: z.string({ required_error: 'Password is required' }),
+//   }),
+// });
+
+
+
+
+export const loginZodSchema = z.object({
   body: z.object({
-    email: z.string({ required_error: 'Email is required' }).email(),
-    password: z.string({ required_error: 'Password is required' }),
+    email: z.string().nonempty('Email is required').email('Must be a valid email'),
+    password: z.string().nonempty('Password is required'),
   }),
 });
 
-const refreshTokenValidationSchema = z.object({
+export const refreshTokenValidationSchema = z.object({
   body: z.object({
-    refreshToken: z.string({ required_error: 'Refresh token is required' }),
+    refreshToken: z.string().nonempty('Refresh token is required'),
   }),
 });
 
-const changePasswordZodSchema = z.object({
+export const changePasswordZodSchema = z.object({
   body: z.object({
-    oldPassword: z.string({ required_error: 'Old password is required' }),
-    newPassword: z
-      .string({ required_error: 'New password is required' })
-      .min(6, 'Password must be at least 6 characters'),
+    oldPassword: z.string().nonempty('Old password is required'),
+    newPassword: z.string().nonempty('New password is required').min(6, 'Password must be at least 6 characters'),
   }),
 });
 
-const resetPasswordZodSchema = z
+export const resetPasswordZodSchema = z
   .object({
     body: z.object({
-      newPassword: z
-        .string({ required_error: 'New password is required' })
-        .min(6, 'Password must be at least 6 characters'),
-      confirmPassword: z.string({
-        required_error: 'Confirm password is required',
-      }),
+      newPassword: z.string().nonempty('New password is required').min(6, 'Password must be at least 6 characters'),
+      confirmPassword: z.string().nonempty('Confirm password is required'),
     }),
   })
   .refine((data) => data.body.newPassword === data.body.confirmPassword, {
@@ -67,18 +114,17 @@ const resetPasswordZodSchema = z
     path: ['body.confirmPassword'],
   });
 
-const forgotPasswordZodSchema = z.object({
+export const forgotPasswordZodSchema = z.object({
   body: z.object({
-    email: z.string().email({ message: 'Must be a valid email address' }),
+    email: z.string().nonempty('Email is required').email('Must be a valid email address'),
   }),
 });
 
-const deleteAccountZodSchema = z.object({
+export const deleteAccountZodSchema = z.object({
   body: z.object({
-    password: z.string({ required_error: 'Password is required' }),
+    password: z.string().nonempty('Password is required'),
   }),
 });
-
 export const authValidation = {
   loginZodSchema,
   refreshTokenValidationSchema,

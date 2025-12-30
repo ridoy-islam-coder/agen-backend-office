@@ -210,7 +210,7 @@ const unblockUser = catchAsync(async (req: Request, res: Response) => {
 
 export const userControllers = {
   getme,
-  updateProfile,
+//   updateProfile,
   getsingleUser,
   getAllUsers,
   deleteAccount,

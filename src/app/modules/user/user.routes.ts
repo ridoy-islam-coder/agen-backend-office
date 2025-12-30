@@ -8,13 +8,13 @@ import { authValidation } from "../auth/auth.validation";
 const router = Router();
 
 // For login user (user & admin both)
-router.patch(
-  '/update-profile',
-  auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.sup_admin),
-//   upload.single('file'),
-  userControllers.updateProfile,
-);
-//toatal user count
+// router.patch(
+//   '/update-profile',
+//   auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.sup_admin),
+// //   upload.single('file'),
+//   userControllers.updateProfile,
+// );
+// //toatal user count
 router.get(
   '/total-count',
   auth(USER_ROLE.admin, USER_ROLE.sup_admin),
@@ -32,12 +32,12 @@ router.get(
 );
 
 // For admin to update others
-router.patch(
-  '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.sup_admin),
-//   upload.single('file'),
-  userControllers.updateProfile,
-);
+// router.patch(
+//   '/:id',
+//   auth(USER_ROLE.admin, USER_ROLE.sup_admin),
+// //   upload.single('file'),
+//   userControllers.updateProfile,
+// );
 
 router.patch(
   '/phone/update',
