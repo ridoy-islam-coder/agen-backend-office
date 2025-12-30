@@ -12,7 +12,7 @@ import User from '../modules/user/user.model';
 
 
 
-const AuthMiddleware = (...userRoles: string[]) => {
+const auth = (...userRoles: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -66,4 +66,4 @@ const AuthMiddleware = (...userRoles: string[]) => {
   });
 };
 
-export default AuthMiddleware;
+export default auth;
