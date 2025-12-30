@@ -7,6 +7,8 @@ import { TchangePassword, Tlogin, TresetPassword } from "./user.interface";
 import  httpStatus  from 'http-status';
 import { generateOtp } from "../../utils/otpGenerator";
 import moment from 'moment';
+import { sendEmail } from '../../utils/mailSender';
+import bcrypt from "bcrypt";
 
 
 
