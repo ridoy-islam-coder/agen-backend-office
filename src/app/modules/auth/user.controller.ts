@@ -14,6 +14,62 @@ import sendResponse from '../../utils/sendResponse';
 
 const googleClient = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID'); // Replace with your Google Client ID
 
+
+
+const register = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthServices.register(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'User registered successfully',
+    data: {
+      _id: result._id,
+      email: result.email,
+      fullName: result.fullName,
+      phoneNumber: result.phoneNumber,
+      countryCode: result.countryCode,
+      gender: result.gender,
+      role: result.role,
+    },
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select('+password');

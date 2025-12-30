@@ -19,3 +19,13 @@ export type TresetPassword = {
   newPassword: string;
   confirmPassword: string;
 };
+
+
+export type TRegister = {
+  email: string;
+  password: string;
+  fullName: string;
+  phoneNumber: string;
+  countryCode: string;
+  gender: 'Male' | 'Female';
+}

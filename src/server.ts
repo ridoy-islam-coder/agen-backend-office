@@ -1,19 +1,34 @@
-import mongoose from "mongoose";
-import app from "./app";
-
-import { config } from "./app/config";
-
- async function main() {
-  await mongoose.connect(config.db_uri as string);
-   
-   app.listen(config.port, () => {
-  console.log(`Server is running on port ${config.port}`); });
+import mongoose from 'mongoose';
+import app from './app';
+import config from './app/config';
 
 
-}
+const port = Number(config.port) || 5000;
 
-main().then(() => console.log("Mongobd connected successfull !")).catch((error) => {
+const startServer = async () => {
+  try {
+    await mongoose.connect(config.database_url as string);
+    console.log('Database connected');
 
-  console.error("Error connecting to the database:", error);
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  } catch (err) {
+    console.error('Error starting server:', err);
+    process.exit(1);
+  }
+};
 
+startServer();
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err: any) => {
+  console.error('Unhandled Rejection:', err);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err: any) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
 });

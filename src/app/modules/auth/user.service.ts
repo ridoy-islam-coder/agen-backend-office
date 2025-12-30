@@ -3,12 +3,52 @@ import config from "../../config";
 import AppError from "../../error/AppError";
 import User from "../user/user.model";
 import { createToken, verifyToken } from "./auth.utils";
-import { TchangePassword, Tlogin, TresetPassword } from "./user.interface";
+import { TchangePassword, Tlogin, TRegister, TresetPassword } from "./user.interface";
 import  httpStatus  from 'http-status';
 import { generateOtp } from "../../utils/otpGenerator";
 import moment from 'moment';
 import { sendEmail } from '../../utils/mailSender';
 import bcrypt from "bcrypt";
+
+
+
+
+
+const register = async (payload: TRegister) => {
+  // 1️⃣ email exists check
+  const isEmailExist = await User.isUserExist(payload.email);
+  if (isEmailExist) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
+  }
+
+  // 2️⃣ phone exists check
+  const isPhoneExist = await User.isUserExistByNumber(
+    payload.countryCode,
+    payload.phoneNumber,
+  );
+
+  if (isPhoneExist) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Phone number already exists');
+  }
+
+  // 3️⃣ create user
+  const user = await User.create({
+    email: payload.email,
+    password: payload.password, // 🔥 pre-save hook hash করবে
+    fullName: payload.fullName,
+    phoneNumber: payload.phoneNumber,
+    countryCode: payload.countryCode,
+    gender: payload.gender,
+    role: 'customer',
+    isVerified: false, // later OTP verify
+  });
+
+  return user;
+};
+
+export const AuthServices = {
+  register,
+};
 
 
 
