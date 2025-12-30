@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authRoutes } from '../modules/auth/user.routes';
 
 
 

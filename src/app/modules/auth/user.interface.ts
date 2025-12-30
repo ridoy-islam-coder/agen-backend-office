@@ -1,17 +1,21 @@
-import { Document } from "mongoose";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export type QueryObject = {
+  [key: string]: any;
+};
 
-export enum Role {
-    USER = "user",
-    ADMIN = "admin",
-  
-}
-
-export interface IUser extends Document {
-    username: string;
-    email: string;
-    password: string;
-    role: Role;
-    createdAt: Date;
-    updatedAt: Date;
-    
-}
+export type Tlogin = {
+  email?: string;
+  countryCode?: string;
+  phoneNumber?: string;
+  password: string;
+  fcmToken: string;
+};
+export type TchangePassword = {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+export type TresetPassword = {
+  newPassword: string;
+  confirmPassword: string;
+};

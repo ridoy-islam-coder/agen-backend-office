@@ -16,9 +16,9 @@ export default {
      allowed_origins: process.env.ALLOWED_ORIGINS,
      jwt: {
           jwt_access_secret: process.env.JWT_SECRET,
-          jwt_expire_in: process.env.JWT_EXPIRE_IN,
+          jwt_access_expires_in: process.env.JWT_EXPIRE_IN,
           jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
-          jwt_refresh_expire_in: process.env.JWT_REFRESH_EXPIRE_IN,
+          jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRE_IN,
      },
 
      email: {
@@ -26,8 +26,8 @@ export default {
           from: process.env.EMAIL_FROM,
           user: process.env.EMAIL_USER,
           port: process.env.EMAIL_PORT,
-          host: process.env.EMAIL_HOST,
-          pass: process.env.EMAIL_PASS,
+          nodemailer_host_email: process.env.EMAIL_HOST,
+          nodemailer_host_pass: process.env.EMAIL_PASS,
      },
      express_sessoin: process.env.EXPRESS_SESSION_SECRET_KEY,
      social: {
