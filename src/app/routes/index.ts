@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authRoutes } from '../modules/auth/user.routes';
+import { userRoutes } from '../modules/user/user.routes';
 
 
 
@@ -15,38 +16,38 @@ const moduleRoutes = [
     path: '/auth',
     route: authRoutes,
   },
-  {
-    path: '/admin',
-    route: adminRoutes,
-  },
-  {
-    path: '/rules',
-    route: ruleRoutes,
-  },
-  {
-    path: '/subscription',
-    route: SubscriptionRoutes,
-  },
-  {
-    path: '/payment',
-    route: PaymentRoutes,
-  },
-  {
-    path: '/otp',
-    route: otpRoutes,
-  },
-  {
-    path: '/wallet',
-    route: walletRoutes,
-  },
-  {
-    path: '/notifications',
-    route: NotificationRoutes,
-  },
-  {
-    path: '/onboarding',
-    route: onboardingRoutes,
-  },
+//   {
+//     path: '/admin',
+//     route: adminRoutes,
+//   },
+//   {
+//     path: '/rules',
+//     route: ruleRoutes,
+//   },
+//   {
+//     path: '/subscription',
+//     route: SubscriptionRoutes,
+//   },
+//   {
+//     path: '/payment',
+//     route: PaymentRoutes,
+//   },
+//   {
+//     path: '/otp',
+//     route: otpRoutes,
+//   },
+//   {
+//     path: '/wallet',
+//     route: walletRoutes,
+//   },
+//   {
+//     path: '/notifications',
+//     route: NotificationRoutes,
+//   },
+//   {
+//     path: '/onboarding',
+//     route: onboardingRoutes,
+//   },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 
