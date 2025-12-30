@@ -6,7 +6,7 @@ import { authValidation } from "./auth.validation";
 import { authControllers } from "./user.controller";
 
 const router = Router();
-
+router.post('/userregistiopn',validateRequest(authValidation.loginZodSchema), authControllers.userregistiopn,);
 router.post('/login',validateRequest(authValidation.loginZodSchema), authControllers.login,);
 router.post( '/refresh-token',validateRequest(authValidation.refreshTokenValidationSchema),authControllers.refreshToken,);
 router.post('/google', authControllers.googleLogin);

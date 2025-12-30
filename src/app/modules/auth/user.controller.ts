@@ -9,6 +9,7 @@ import jwt, { JwtPayload, Secret  } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import sendResponse from '../../utils/sendResponse';
+import { AuthServices } from './user.service';
 
 
 
@@ -16,7 +17,14 @@ const googleClient = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID'); // Replace with 
 
 
 
-const register = catchAsync(async (req: Request, res: Response) => {
+
+
+
+
+
+
+
+const userregistiopn = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthServices.register(req.body);
 
   sendResponse(res, {
@@ -34,14 +42,6 @@ const register = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
-
-
-
-
-
-
-
-
 
 
 
@@ -316,4 +316,5 @@ export const authControllers = {
   refreshToken,
   googleLogin,
   facebookLogin,
+  userregistiopn,
 };
