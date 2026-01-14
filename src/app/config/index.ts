@@ -11,6 +11,7 @@ export default {
      database_url: process.env.DATABASE_URL,
      node_env: process.env.NODE_ENV,
      port: process.env.PORT,
+     
 
      bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS,
      socket_port: process.env.SOCKET_PORT,
@@ -54,5 +55,11 @@ export default {
           email: process.env.SUPER_ADMIN_EMAIL,
           password: process.env.SUPER_ADMIN_PASSWORD,
      },
+          aws: {
+          region: process.env.AWS_REGION,
+          bucket: process.env.AWS_BUCKET,
+          access_key: process.env.AWS_ACCESS_KEY,
+          secret_key: process.env.AWS_SECRET_KEY,
+     }
 };
 

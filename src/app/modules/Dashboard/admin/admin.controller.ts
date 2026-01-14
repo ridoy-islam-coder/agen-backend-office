@@ -18,7 +18,7 @@ import config from "../../../config";
 // import config from '../../../config';
 
 // import AppError from '../../../error/AppError';
-import { uploadToS3 } from '../../../utils/fileHelper';
+// import { uploadToS3 } from '../../../utils/fileHelper';
 
 
 
