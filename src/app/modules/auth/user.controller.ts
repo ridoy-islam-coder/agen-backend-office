@@ -54,7 +54,48 @@ const userregistiopn = catchAsync(async (req: Request, res: Response) => {
 
 
 
+// npm install apple-auth jsonwebtoken
 
+
+
+const appleLogin = async (req: Request, res: Response) => {
+  const { idToken } = req.body;
+
+  // Decode Apple token
+  const decoded: any = jwt.decode(idToken);
+
+  if (!decoded) {
+    throw new AppError(400, 'Invalid Apple token');
+  }
+
+  const {
+    email,
+    sub, // Apple user unique id
+  } = decoded;
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    user = await User.create({
+      email,
+      fullName: 'Apple User',
+      accountType: 'apple',
+      isVerified: true,
+    });
+  }
+
+  const accessToken = jwt.sign(
+    { id: user._id, role: user.role },
+    config.jwt.jwt_access_secret as string,
+    { expiresIn: '24h' }
+  );
+
+  res.json({
+    success: true,
+    accessToken,
+    user,
+  });
+};
 
 
 
