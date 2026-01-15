@@ -9,7 +9,8 @@ import jwt, { JwtPayload, Secret  } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import sendResponse from '../../utils/sendResponse';
-import { AuthServices } from './user.service';
+import { authServices } from './user.service';
+// import { AuthServices } from './user.service';
 
 
 
@@ -21,25 +22,16 @@ const googleClient = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID'); // Replace with 
 
 
 
-
-
-
-const userregistiopn = catchAsync(async (req: Request, res: Response) => {
-  const result = await AuthServices.register(req.body);
+const userRegistration = catchAsync(async (req: Request, res: Response) => {
+  // register service থেকে OTP generate হবে, user DB-এ এখনো save হবে না
+  const { email } = req.body;
+  const result = await authServices.register(req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,
-    message: 'User registered successfully',
-    data: {
-      _id: result._id,
-      email: result.email,
-      fullName: result.fullName,
-      phoneNumber: result.phoneNumber,
-      countryCode: result.countryCode,
-      gender: result.gender,
-      role: result.role,
-    },
+    message: `OTP sent to ${email}. Please verify to complete registration`,
+    data: { email }, // শুধু email পাঠাচ্ছি
   });
 });
 
@@ -49,7 +41,28 @@ const userregistiopn = catchAsync(async (req: Request, res: Response) => {
 
 
 
+const verifyEmailController = catchAsync(async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
 
+  // verifyOtp service → OTP check + DB save
+  const user = await authServices.verifyEmail(email, Number(otp));
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'OTP verified successfully. User registration complete.',
+    data: {
+      _id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      countryCode: user.countryCode,
+      gender: user.gender,
+      role: user.role,
+      isVerified: user.isVerified,
+    },
+  });
+});
 
 
 
@@ -357,5 +370,6 @@ export const authControllers = {
   refreshToken,
   googleLogin,
   facebookLogin,
-  userregistiopn,
+  userRegistration,
+  verifyEmailController,
 };

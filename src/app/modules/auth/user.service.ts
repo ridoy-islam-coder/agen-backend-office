@@ -9,49 +9,89 @@ import { generateOtp } from "../../utils/otpGenerator";
 import moment from 'moment';
 import { sendEmail } from '../../utils/mailSender';
 import bcrypt from "bcrypt";
+import { UserRole } from '../user/user.interface';
 
 
-
-
+// otpCache: in-memory Map or Redis
+const otpCache = new Map<string, { payload: TRegister; otp: number; expiresAt: Date }>();
 
 const register = async (payload: TRegister) => {
-  // 1️⃣ email exists check
+  // check existing email
   const isEmailExist = await User.isUserExist(payload.email);
   if (isEmailExist) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Email already exists');
   }
 
-  // 2️⃣ phone exists check
+  // phone check
   const isPhoneExist = await User.isUserExistByNumber(
     payload.countryCode,
-    payload.phoneNumber,
+    payload.phoneNumber
   );
-
   if (isPhoneExist) {
     throw new AppError(httpStatus.BAD_REQUEST, 'Phone number already exists');
   }
 
-  // 3️⃣ create user
+  // generate OTP
+  const otp = generateOtp();
+  const expiresAt = moment().add(5, 'minute').toDate();
+
+  otpCache.set(payload.email, { payload, otp, expiresAt });
+
+  // send OTP email
+  await sendEmail(
+    payload.email,
+    'Verify your email',
+    `<div>
+      <h4>Your verification OTP</h4>
+      <h2>${otp}</h2>
+      <p>Valid till: ${expiresAt.toLocaleString()}</p>
+    </div>`
+  );
+
+  return { email: payload.email };
+};
+
+
+
+const verifyEmail = async (email: string, otpInput: number) => {
+  const otpData = otpCache.get(email);
+  if (!otpData) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'No OTP request found');
+  }
+
+  if (moment().isAfter(otpData.expiresAt)) {
+    otpCache.delete(email);
+    throw new AppError(httpStatus.BAD_REQUEST, 'OTP expired');
+  }
+
+  if (otpData.otp !== otpInput) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid OTP');
+  }
+
+  // ✅ OTP verified → now save user in DB
+  const payload = otpData.payload;
+
   const user = await User.create({
     email: payload.email,
-    password: payload.password, // 🔥 pre-save hook hash করবে
+    password: payload.password,
     fullName: payload.fullName,
     phoneNumber: payload.phoneNumber,
     countryCode: payload.countryCode,
     gender: payload.gender,
-    role: 'customer',
-    isVerified: false, // later OTP verify
+    role: UserRole.customer,
+    isVerified: true,
+    verification: {
+      otp: null,
+      expiresAt: null,
+      status: true,
+    },
   });
+
+  // OTP remove from cache
+  otpCache.delete(email);
 
   return user;
 };
-
-export const AuthServices = {
-  register,
-};
-
-
-
 
 
 
@@ -275,6 +315,8 @@ const refreshToken = async (token: string) => {
   };
 };
 export const authServices = {
+  register,
+  verifyEmail,
   login,
   changePassword,
   forgotPassword,

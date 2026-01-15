@@ -3,7 +3,7 @@ import app from './app';
 import config from './app/config';
 
 
-const port = Number(config.port) || 5000;
+const port = Number(config.port) || 5001;
 
 const startServer = async () => {
   try {

@@ -28,7 +28,7 @@ export default {
           from: process.env.EMAIL_FROM,
           user: process.env.EMAIL_USER,
           port: process.env.EMAIL_PORT,
-          nodemailer_host_email: process.env.EMAIL_HOST,
+          nodemailer_host_email: process.env.EMAIL_USER,
           nodemailer_host_pass: process.env.EMAIL_PASS,
      },
      express_sessoin: process.env.EXPRESS_SESSION_SECRET_KEY,

@@ -79,8 +79,52 @@ import { z } from 'zod';
 //   }),
 // });
 
+export const registerZodSchema = z.object({
+  body: z.object({
+    email: z
+      .string()
+      .nonempty('Email is required')
+      .email('Must be a valid email'),
+
+    password: z
+      .string()
+      .nonempty('Password is required')
+      .min(6, 'Password must be at least 6 characters'),
+
+    fullName: z
+      .string()
+      .nonempty('Full name is required'),
+
+    phoneNumber: z
+      .string()
+      .nonempty('Phone number is required'),
+
+    countryCode: z
+      .string()
+      .nonempty('Country code is required'),
+
+    // gender: z
+    //   .enum(['Male', 'Female'], {
+    //     required_error: 'Gender is required',
+    //   }),
+  }),
+});
 
 
+export const verifyEmailZodSchema = z.object({
+  body: z.object({
+    email: z
+      .string()
+      .nonempty('Email is required')
+      .email('Must be a valid email'),
+
+    otp: z
+      .number()
+      .refine((val) => val !== undefined && val !== null, {
+        message: 'OTP is required',
+      }),
+  }),
+});
 
 export const loginZodSchema = z.object({
   body: z.object({
@@ -126,6 +170,8 @@ export const deleteAccountZodSchema = z.object({
   }),
 });
 export const authValidation = {
+  registerZodSchema,
+  verifyEmailZodSchema,
   loginZodSchema,
   refreshTokenValidationSchema,
   changePasswordZodSchema,

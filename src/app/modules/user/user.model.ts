@@ -10,11 +10,11 @@ import { TUser, UserModel, UserRole } from './user.interface';
 const VerificationSchema = new Schema({
   otp: {
     type: Number, // Allows string or number
-    required: true,
+    // required: true,
   },
   expiresAt: {
     type: Date,
-    required: true,
+    // required: true,
   },
 
   status: {
