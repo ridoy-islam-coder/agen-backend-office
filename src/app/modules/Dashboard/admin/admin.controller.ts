@@ -7,6 +7,7 @@ import sendResponse from "../../../utils/sendResponse";
 import jwt from 'jsonwebtoken';
 import { adminService } from "./admin.service";
 import config from "../../../config";
+import { sendEmail } from "../../../utils/mailSender";
 
 
 // import { Request, Response } from 'express';
@@ -19,6 +20,49 @@ import config from "../../../config";
 
 // import AppError from '../../../error/AppError';
 // import { uploadToS3 } from '../../../utils/fileHelper';
+
+
+
+
+export const adminRegister = catchAsync( async (req: Request, res: Response) => {
+    const { email, password, role, fullName, phoneNumber } = req.body;
+
+    // 🔎 Check admin already exists
+    const isAdminExist = await Admin.findOne({ email });
+    if (isAdminExist) {
+      throw new AppError(httpStatus.CONFLICT, 'Admin already exists');
+    }
+
+    // 🧾 Create admin (password auto hash হবে)
+    const admin = await Admin.create({
+      email,
+      password,
+      role, // admin / super_admin
+      fullName,
+      phoneNumber,
+    });
+
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: 'Admin registered successfully',
+      data: {
+        id: admin._id,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+  },
+);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -110,6 +154,13 @@ const otpStore = new Map<string, string>();
 const forgotPassword = catchAsync(async (req: Request, res: Response) => {
   const otp = await adminService.setForgotOtp(req.body.email);
   otpStore.set(otp.toString(), req.body.email); // store otp → email
+
+await sendEmail(
+  req.body.email,
+  'Admin Password Reset OTP',
+  `Your OTP is ${otp}. It is valid for 10 minutes.` // <=== html/string argument
+);
+
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -167,6 +218,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const adminControllers = {
+  adminRegister,
   adminLogin,
   updateProfile,
   changePassword,

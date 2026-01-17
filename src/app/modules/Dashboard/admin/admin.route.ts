@@ -6,13 +6,12 @@ import auth from '../../../middleware/auth.middleware';
 
 const router = Router();
 
+router.post('/adminRegister', adminControllers.adminRegister);
+
 router.post('/login', adminControllers.adminLogin);
 router.get('/me', auth('admin'), adminControllers.getProfile);
 
-router.patch(
-  '/update-profile',
-  auth('admin', 'super_admin'),
-//   upload.single('file'),
+router.patch('/update-profile',auth('admin', 'super_admin'),//   upload.single('file'),
   adminControllers.updateProfile,
 );
 router.patch(
@@ -20,6 +19,8 @@ router.patch(
   auth('admin', 'super_admin'),
   adminControllers.changePassword,
 );
+
+
 router.post('/forgot-password', adminControllers.forgotPassword);
 router.post('/verify-otp', adminControllers.verifyOtp);
 router.post('/reset-password', adminControllers.resetPassword);
