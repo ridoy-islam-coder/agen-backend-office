@@ -9,7 +9,7 @@ import jwt, { JwtPayload, Secret  } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import sendResponse from '../../utils/sendResponse';
-import { authServices } from './user.service';
+import { authServices, } from './user.service';
 // import { AuthServices } from './user.service';
 
 
@@ -363,9 +363,38 @@ const facebookLogin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+
+
+const codeVerification = catchAsync(async (req: Request, res: Response) => {
+ const { email } = req.body;
+
+  // ✅ OTP generate + send to email
+  const otp = await authServices.sendVerificationCode(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'OTP sent successfully, please verify before reset password',
+    data: { email, otp }, // 🔒 prod এ otp response দিও না, শুধুমাত্র email
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
 export const authControllers = {
   login,
   resetPassword,
+  codeVerification,
   changePassword,
   refreshToken,
   googleLogin,

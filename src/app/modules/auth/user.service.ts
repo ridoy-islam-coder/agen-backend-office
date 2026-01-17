@@ -314,10 +314,47 @@ const refreshToken = async (token: string) => {
     accessToken,
   };
 };
+
+
+
+// OTP cache for password reset
+const passwordResetOtpCache = new Map<string, { otp: number; expiresAt: Date }>();
+
+export const sendVerificationCode = async (email: string) => {
+  const user = await User.isUserExist(email);
+  if (!user) throw new AppError(404, 'Email not found');
+
+  const otp = generateOtp();
+  const expiresAt = moment().add(10, 'minute').toDate();
+
+  passwordResetOtpCache.set(email, { otp, expiresAt });
+
+  await sendEmail(
+    email,
+    'Password Reset OTP',
+    `<div>
+      <h4>Your password reset OTP</h4>
+      <h2>${otp}</h2>
+      <p>Valid till: ${expiresAt.toLocaleString()}</p>
+    </div>`
+  );
+
+  return otp; // 🔒 production এ otp return করা ঠিক নয়
+};
+
+
+
+
+
+
+
+
+
 export const authServices = {
   register,
   verifyEmail,
   login,
+  sendVerificationCode,
   changePassword,
   forgotPassword,
   resetPassword,

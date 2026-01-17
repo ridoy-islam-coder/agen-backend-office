@@ -12,6 +12,9 @@ router.post('/login',validateRequest(authValidation.loginZodSchema), authControl
 router.post( '/refresh-token',validateRequest(authValidation.refreshTokenValidationSchema),authControllers.refreshToken,);
 router.post('/google', authControllers.googleLogin);
 router.post('/facebook', authControllers.facebookLogin);
+
+router.post('/codeVerification', authControllers.codeVerification,);
+
 router.patch('/change-password',auth(USER_ROLE.sup_admin, USER_ROLE.user),authControllers.changePassword,);
 router.patch('/reset-password', authControllers.resetPassword);
 export const authRoutes = router;
