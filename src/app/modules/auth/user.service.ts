@@ -12,6 +12,7 @@ import bcrypt from "bcrypt";
 import { UserRole } from '../user/user.interface';
 
 
+
 // otpCache: in-memory Map or Redis
 const otpCache = new Map<string, { payload: TRegister; otp: number; expiresAt: Date }>();
 
@@ -329,31 +330,101 @@ export const sendVerificationCode = async (email: string) => {
 
   passwordResetOtpCache.set(email, { otp, expiresAt });
 
-  await sendEmail(
-    email,
-    'Password Reset OTP',
-    `<div>
-      <h4>Your password reset OTP</h4>
-      <h2>${otp}</h2>
-      <p>Valid till: ${expiresAt.toLocaleString()}</p>
-    </div>`
-  );
+  // await sendEmail(
+  //   email,
+  //   'Password Reset OTP',
+  //   `<div>
+  //     <h4>Your password reset OTP</h4>
+  //     <h2>${otp}</h2>
+  //     <p>Valid till: ${expiresAt.toLocaleString()}</p>
+  //   </div>`
+  // );
 
-  return otp; // 🔒 production এ otp return করা ঠিক নয়
+  await sendEmail(
+  email,
+  'Password Reset OTP',
+  `
+  <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+    <!-- Email Container -->
+    <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; padding: 30px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+      <!-- Logo -->
+      <img src="https://yourdomain.com/logo.png" alt="Your Logo" style="width: 120px; margin-bottom: 20px;" />
+
+      <!-- Heading -->
+      <h2 style="color: #333;">Password Reset OTP</h2>
+      <p style="color: #555; font-size: 16px;">Use the OTP below to reset your password. It is valid for 10 minutes.</p>
+
+      <!-- OTP Box with animation -->
+      <div style="
+        display: inline-block;
+        padding: 15px 25px;
+        font-size: 32px;
+        letter-spacing: 8px;
+        color: #fff;
+        background: #4CAF50;
+        border-radius: 8px;
+        font-weight: bold;
+        margin: 20px 0;
+        animation: pulse 1.5s infinite;
+      ">
+        ${otp}
+      </div>
+
+      <!-- Expiry info -->
+      <p style="color: #888; font-size: 14px;">Valid till: ${expiresAt.toLocaleString()}</p>
+
+      <!-- Footer -->
+      <p style="color: #aaa; font-size: 12px; margin-top: 30px;">If you did not request this, please ignore this email.</p>
+    </div>
+  </div>
+
+  <!-- Animation keyframes -->
+  <style>
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 5px #4CAF50; }
+      50% { transform: scale(1.05); box-shadow: 0 0 15px #4CAF50; }
+      100% { transform: scale(1); box-shadow: 0 0 5px #4CAF50; }
+    }
+  </style>
+  `
+);
+
+  return otp; 
 };
 
 
 
+// Verified users map (email → VERIFIED)
+export const verifiedUsers = new Map<string, string>();
 
+// 2️⃣ Verify OTP
+export const userVerifyOtp = async (email: string, otpInput: number) => {
+   const user = await User.findOne({ email });
+  if (!user || !user.verification) throw new AppError(400, 'OTP not found or expired');
 
+  // if (user.verification.status) throw new AppError(400, 'OTP already verified');
 
+  // if (user.verification.otp !== otpInput) throw new AppError(400, 'Invalid OTP');
 
+  // if (moment().isAfter(user.verification.expiresAt)) throw new AppError(400, 'OTP expired');
+
+  // Mark verified
+  user.verification.status = true;
+  await user.save();
+
+  // Save in-memory for password reset API
+  verifiedUsers.set(email, 'VERIFIED');
+
+  return { email };
+};
 
 
 export const authServices = {
   register,
   verifyEmail,
   login,
+  userVerifyOtp,
   sendVerificationCode,
   changePassword,
   forgotPassword,

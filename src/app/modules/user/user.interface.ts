@@ -16,7 +16,7 @@ export enum Gender {
   Male = 'Male',
   Female = 'Female',
 }
-interface Verification {
+ interface Verification {
   otp: string | number;
   expiresAt: Date;
   status: boolean;

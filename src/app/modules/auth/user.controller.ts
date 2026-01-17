@@ -364,12 +364,12 @@ const facebookLogin = catchAsync(async (req: Request, res: Response) => {
 });
 
 
-
+// neja korce ai api gulla oky
 
 const codeVerification = catchAsync(async (req: Request, res: Response) => {
  const { email } = req.body;
 
-  // ✅ OTP generate + send to email
+ 
   const otp = await authServices.sendVerificationCode(email);
 
   sendResponse(res, {
@@ -386,7 +386,16 @@ const codeVerification = catchAsync(async (req: Request, res: Response) => {
 
 
 
-
+export const verifyOtpController = catchAsync(async (req, res) => {
+  const { email, otp } = req.body;
+  await authServices.userVerifyOtp(email, Number(otp));
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'OTP verified successfully. You can now reset your password.',
+    data: { email },
+  });
+});
 
 
 
@@ -394,6 +403,7 @@ const codeVerification = catchAsync(async (req: Request, res: Response) => {
 export const authControllers = {
   login,
   resetPassword,
+  verifyOtpController,
   codeVerification,
   changePassword,
   refreshToken,
