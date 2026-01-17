@@ -420,6 +420,45 @@ export const userVerifyOtp = async (email: string, otpInput: number) => {
 };
 
 
+
+
+
+
+export const userResetPasswordService = async (
+  email: string,
+  newPassword: string,
+) => {
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  if (!user.verification || user.verification.status !== true) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'OTP not verified');
+  }
+
+  // ✅ set new password
+  user.password = newPassword;
+
+  // ✅ clear OTP data
+ user.verification = {
+  otp: null,
+  expiresAt: null,
+  status: false,
+} as any;
+
+  await user.save();
+
+  return null;
+};
+
+
+
+
+
+
+
 export const authServices = {
   register,
   verifyEmail,

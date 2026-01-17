@@ -9,7 +9,7 @@ import jwt, { JwtPayload, Secret  } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 import sendResponse from '../../utils/sendResponse';
-import { authServices, } from './user.service';
+import { authServices, userResetPasswordService, } from './user.service';
 // import { AuthServices } from './user.service';
 
 
@@ -369,7 +369,10 @@ const facebookLogin = catchAsync(async (req: Request, res: Response) => {
 const codeVerification = catchAsync(async (req: Request, res: Response) => {
  const { email } = req.body;
 
- 
+    if (!email) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Email is required');
+    }
+
   const otp = await authServices.sendVerificationCode(email);
 
   sendResponse(res, {
@@ -388,6 +391,10 @@ const codeVerification = catchAsync(async (req: Request, res: Response) => {
 
 export const verifyOtpController = catchAsync(async (req, res) => {
   const { email, otp } = req.body;
+   if (!email || !otp) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Email and OTP are required');
+    }
+
   await authServices.userVerifyOtp(email, Number(otp));
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -398,7 +405,31 @@ export const verifyOtpController = catchAsync(async (req, res) => {
 });
 
 
+export const userResetPassword = catchAsync(
+  async (req: Request, res: Response) => {
+    const { email, newPassword, confirmPassword } = req.body;
 
+    if (!email || !newPassword || !confirmPassword) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'Email, newPassword and confirmPassword are required',
+      );
+    }
+
+    if (newPassword !== confirmPassword) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Passwords do not match');
+    }
+
+    await userResetPasswordService(email, newPassword);
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Password reset successful',
+      data: {},
+    });
+  },
+);
 
 export const authControllers = {
   login,
