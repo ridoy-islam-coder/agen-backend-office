@@ -16,13 +16,18 @@ app.use(helmet());
 //parsers
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
-  }),
-);
+// app.use(
+//   cors({
+//     origin: true,
+//     credentials: true,
+//     methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+//   }),
+// );
+
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'], // React dev URLs
+  credentials: true,
+}));
 // application routes
 app.use('/api/v1', router);
 app.get('/', (req: Request, res: Response) => {

@@ -14,12 +14,61 @@ import { authServices, userResetPasswordService, } from './user.service';
 
 
 
-const googleClient = new OAuth2Client('YOUR_GOOGLE_CLIENT_ID'); // Replace with your Google Client ID
+// const googleClient = new OAuth2Client('23601987612-4e3n9lf08s8hnh0o9m8ag8n22f82u2ki.apps.googleusercontent.com'); // Replace with your Google Client ID
+const googleClient = new OAuth2Client('23601987612-ko94q8ki1ui42igekam6f87kamceuvu4.apps.googleusercontent.com');
+
+export const googleLogin = async (req: Request, res: Response) => {
+  const { idToken } = req.body;
+  if (!idToken) return res.status(400).json({ success: false, message: 'idToken required' });
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: '23601987612-ko94q8ki1ui42igekam6f87kamceuvu4.apps.googleusercontent.com',
+    });
+
+    const payload = ticket.getPayload();
+    console.log('Google payload:', payload);
+    if (!payload?.email) return res.status(400).json({ success: false, message: 'Invalid Google token' });
+
+    // let user = await User.findOne({ email: payload.email });
+    // if (!user) {
+    //   user = await User.create({
+    //     email: payload.email,
+    //     fullName: payload.name,
+    //     isVerified: true,
+    //     accountType: 'google',
+    //   });
+    // }
 
 
+    let user = await User.findOne({ email: payload.email });
+if (!user) {
+  user = await User.create({
+    email: payload.email,
+    fullName: payload.name,
+    isVerified: true,
+    accountType: 'google',
+    gender: 'Male',
+    password: '12231',
+    countryCode: '+880',
+    phoneNumber: '0172287587',
+    image: {
+      id: 'google', // যেকোনো default id
+      url: payload.picture || 'https://example.com/default.png',
+    },
+  });
+}
 
+    const accessToken = jwt.sign({ id: user._id, role: user.role }, config.jwt.jwt_access_secret as string, { expiresIn: '24h' });
+    const refreshToken = jwt.sign({ id: user._id, role: user.role }, config.jwt.jwt_refresh_secret as string, { expiresIn: '7d' });
 
-
+    res.json({ success: true, user, accessToken, refreshToken });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Google login failed', err });
+  }
+};
 
 
 const userRegistration = catchAsync(async (req: Request, res: Response) => {
@@ -264,51 +313,51 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-const googleLogin = catchAsync(async (req: Request, res: Response) => {
-  const { idToken } = req.body;
-  if (!idToken) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Google idToken is required');
-  }
-  const ticket = await googleClient.verifyIdToken({
-    idToken,
-    audience: 'YOUR_GOOGLE_CLIENT_ID', // Google Client ID
-  });
-  const payload = ticket.getPayload();
-  if (!payload?.email) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid Google token');
-  }
+// const googleLogin = catchAsync(async (req: Request, res: Response) => {
+//   const { idToken } = req.body;
+//   if (!idToken) {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Google idToken is required');
+//   }
+//   const ticket = await googleClient.verifyIdToken({
+//     idToken,
+//     audience: '23601987612-4e3n9lf08s8hnh0o9m8ag8n22f82u2ki.apps.googleusercontent.com', // Google Client ID
+//   });
+//   const payload = ticket.getPayload();
+//   if (!payload?.email) {
+//     throw new AppError(httpStatus.BAD_REQUEST, 'Invalid Google token');
+//   }
 
-  let user = await User.findOne({ email: payload.email });
-  if (!user) {
-    user = await User.create({
-      email: payload.email,
-      fullName: payload.name,
-      isVerified: true,
-    });
-  }
+//   let user = await User.findOne({ email: payload.email });
+//   if (!user) {
+//     user = await User.create({
+//       email: payload.email,
+//       fullName: payload.name,
+//       isVerified: true,
+//     });
+//   }
 
-  const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
-    config.jwt.jwt_access_secret as Secret,
-    { expiresIn: '24h' },
-  );
-  const refreshToken = jwt.sign(
-    { id: user._id, role: user.role },
-    config.jwt.jwt_refresh_secret as Secret,
-    { expiresIn: '7d' },
-  );
+//   const accessToken = jwt.sign(
+//     { id: user._id, role: user.role },
+//     config.jwt.jwt_access_secret as Secret,
+//     { expiresIn: '24h' },
+//   );
+//   const refreshToken = jwt.sign(
+//     { id: user._id, role: user.role },
+//     config.jwt.jwt_refresh_secret as Secret,
+//     { expiresIn: '7d' },
+//   );
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Google login successful',
-    data: {
-      user,
-      accessToken,
-      refreshToken,
-    },
-  });
-});
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: 'Google login successful',
+//     data: {
+//       user,
+//       accessToken,
+//       refreshToken,
+//     },
+//   });
+// });
 
 const facebookLogin = catchAsync(async (req: Request, res: Response) => {
   const { accessToken } = req.body;
