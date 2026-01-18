@@ -118,48 +118,55 @@ const verifyEmailController = catchAsync(async (req: Request, res: Response) => 
 
 // npm install apple-auth jsonwebtoken
 
-
-
-const appleLogin = async (req: Request, res: Response) => {
+export const appleLogin = async (req: Request, res: Response) => {
   const { idToken } = req.body;
 
-  // Decode Apple token
-  const decoded: any = jwt.decode(idToken);
-
-  if (!decoded) {
-    throw new AppError(400, 'Invalid Apple token');
+  if (!idToken) {
+    throw new AppError(400, 'Apple idToken required');
   }
 
-  const {
-    email,
-    sub, // Apple user unique id
-  } = decoded;
+  jwt.verify(idToken, getAppleKey, async (err, decoded: any) => {
+    if (err) {
+      throw new AppError(401, 'Invalid Apple token');
+    }
 
-  let user = await User.findOne({ email });
+    const { email, sub } = decoded;
 
-  if (!user) {
-    user = await User.create({
-      email,
-      fullName: 'Apple User',
-      accountType: 'apple',
-      isVerified: true,
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      user = await User.create({
+        email,
+        fullName: 'Apple User',
+        accountType: 'apple',
+        isVerified: true,
+        password: 'apple-login', // dummy password
+        gender: 'Male',          // required field
+        countryCode: 'NA',
+        phoneNumber: sub,        // unique value
+      });
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_ACCESS_SECRET!,
+      { expiresIn: '24h' }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_REFRESH_SECRET!,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      user,
+      accessToken,
+      refreshToken,
     });
-  }
-
-  const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
-    config.jwt.jwt_access_secret as string,
-    { expiresIn: '24h' }
-  );
-
-  res.json({
-    success: true,
-    accessToken,
-    user,
   });
 };
-
-
 
 
 
