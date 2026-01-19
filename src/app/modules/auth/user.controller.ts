@@ -118,55 +118,55 @@ const verifyEmailController = catchAsync(async (req: Request, res: Response) => 
 
 // npm install apple-auth jsonwebtoken
 
-export const appleLogin = async (req: Request, res: Response) => {
-  const { idToken } = req.body;
+// export const appleLogin = async (req: Request, res: Response) => {
+//   const { idToken } = req.body;
 
-  if (!idToken) {
-    throw new AppError(400, 'Apple idToken required');
-  }
+//   if (!idToken) {
+//     throw new AppError(400, 'Apple idToken required');
+//   }
 
-  jwt.verify(idToken, getAppleKey, async (err, decoded: any) => {
-    if (err) {
-      throw new AppError(401, 'Invalid Apple token');
-    }
+//   jwt.verify(idToken, getAppleKey, async (err, decoded: any) => {
+//     if (err) {
+//       throw new AppError(401, 'Invalid Apple token');
+//     }
 
-    const { email, sub } = decoded;
+//     const { email, sub } = decoded;
 
-    let user = await User.findOne({ email });
+//     let user = await User.findOne({ email });
 
-    if (!user) {
-      user = await User.create({
-        email,
-        fullName: 'Apple User',
-        accountType: 'apple',
-        isVerified: true,
-        password: 'apple-login', // dummy password
-        gender: 'Male',          // required field
-        countryCode: 'NA',
-        phoneNumber: sub,        // unique value
-      });
-    }
+//     if (!user) {
+//       user = await User.create({
+//         email,
+//         fullName: 'Apple User',
+//         accountType: 'apple',
+//         isVerified: true,
+//         password: 'apple-login', // dummy password
+//         gender: 'Male',          // required field
+//         countryCode: 'NA',
+//         phoneNumber: sub,        // unique value
+//       });
+//     }
 
-    const accessToken = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_ACCESS_SECRET!,
-      { expiresIn: '24h' }
-    );
+//     const accessToken = jwt.sign(
+//       { id: user._id, role: user.role },
+//       process.env.JWT_ACCESS_SECRET!,
+//       { expiresIn: '24h' }
+//     );
 
-    const refreshToken = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: '7d' }
-    );
+//     const refreshToken = jwt.sign(
+//       { id: user._id, role: user.role },
+//       process.env.JWT_REFRESH_SECRET!,
+//       { expiresIn: '7d' }
+//     );
 
-    res.json({
-      success: true,
-      user,
-      accessToken,
-      refreshToken,
-    });
-  });
-};
+//     res.json({
+//       success: true,
+//       user,
+//       accessToken,
+//       refreshToken,
+//     });
+//   });
+// };
 
 
 
