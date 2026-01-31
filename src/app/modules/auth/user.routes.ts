@@ -12,6 +12,7 @@ router.post('/login',validateRequest(authValidation.loginZodSchema), authControl
 router.post( '/refresh-token',validateRequest(authValidation.refreshTokenValidationSchema),authControllers.refreshToken,);
 router.post('/google', authControllers.googleLogin);
 router.post('/facebook', authControllers.facebookLogin);
+router.post('/linkedin', authControllers.linkedInLogin);
 
 router.post('/codeVerification', authControllers.codeVerification,);
 router.post('/userVerifyOtp', authControllers.verifyOtpController,);
