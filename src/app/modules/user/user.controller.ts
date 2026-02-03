@@ -117,7 +117,7 @@ const updatePhoneNumber = catchAsync(async (req: Request, res: Response) => {
 
 // Get single user (used by admin)
 const getsingleUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await userServices.getSingleUser(req.params.id);
+  const result = await userServices.getSingleUser(req.params.id as string);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -189,7 +189,7 @@ const getUserGrowthOverview = catchAsync(
   },
 );
 const blockUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await userServices.blockUser(req.params.id);
+  const result = await userServices.blockUser(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -199,7 +199,7 @@ const blockUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const unblockUser = catchAsync(async (req: Request, res: Response) => {
-  const result = await userServices.unblockUser(req.params.id);
+  const result = await userServices.unblockUser(req.params.id as string);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
