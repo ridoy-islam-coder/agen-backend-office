@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/server.js",
-   "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
+    "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "vercel-build": "tsc"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
