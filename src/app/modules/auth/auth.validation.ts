@@ -79,35 +79,64 @@ import { z } from 'zod';
 //   }),
 // });
 
+// export const registerZodSchema = z.object({
+//   body: z.object({
+//     email: z
+//       .string()
+//       .nonempty('Email is required')
+//       .email('Must be a valid email'),
+
+//     password: z
+//       .string()
+//       .nonempty('Password is required')
+//       .min(6, 'Password must be at least 6 characters'),
+
+//     fullName: z
+//       .string()
+//       .nonempty('Full name is required'),
+
+//     phoneNumber: z
+//       .string()
+//       .nonempty('Phone number is required'),
+
+//     countryCode: z
+//       .string()
+//       .nonempty('Country code is required'),
+
+//     // gender: z
+//     //   .enum(['Male', 'Female'], {
+//     //     required_error: 'Gender is required',
+//     //   }),
+//   }),
+// });
+
+
+
+
 export const registerZodSchema = z.object({
   body: z.object({
-    email: z
-      .string()
-      .nonempty('Email is required')
-      .email('Must be a valid email'),
-
-    password: z
-      .string()
-      .nonempty('Password is required')
-      .min(6, 'Password must be at least 6 characters'),
-
-    fullName: z
-      .string()
-      .nonempty('Full name is required'),
-
-    phoneNumber: z
-      .string()
-      .nonempty('Phone number is required'),
-
-    countryCode: z
-      .string()
-      .nonempty('Country code is required'),
-
-    // gender: z
-    //   .enum(['Male', 'Female'], {
-    //     required_error: 'Gender is required',
-    //   }),
+    email: z.string().nonempty('Email is required').email('Must be a valid email'),
+    password: z.string().min(6, 'Password must be at least 6 characters').optional(),
+    fullName: z.string().nonempty('Full name is required'),
+    phoneNumber: z.string().optional(),
+    countryCode: z.string().optional(),
+    accountType: z.enum(['custom', 'google', 'facebook']).default('custom'),
+    gender: z.enum(['Male','Female']).optional(),
   }),
+}).refine((data) => {
+  // Local signup হলে সব required
+  if (data.body.accountType === 'custom') {
+    return (
+      !!data.body.password &&
+      !!data.body.phoneNumber &&
+      !!data.body.countryCode
+    );
+  }
+  // Social login এ skip
+  return true;
+}, {
+  message: 'Local signup requires password, phoneNumber, and countryCode',
+  path: ['body']
 });
 
 

@@ -38,7 +38,9 @@ const UserSchema = new Schema<TUser, UserModel>(
     email: {
       type: String,
       unique: true,
-      required: true,
+     required: function(this: TUser) {
+     return this.accountType === 'custom';
+  },
     },
     image: imageSchema,
     fullName: {
@@ -47,19 +49,28 @@ const UserSchema = new Schema<TUser, UserModel>(
     },
     password: {
       type: String,
-      required: true,
+        required: function (this: TUser) {
+        return this.accountType === 'custom';
+      },
       default: '',
       select: false,
     },
     countryCode: {
       type: String,
-      required: true,
+        required: function (this: TUser) {
+        return this.accountType === 'custom';
+      }, 
+      sparse: true, // 🔥 important
       default: '',
     },
 
     phoneNumber: {
       type: String,
-      required: true,
+      // required: true,
+        required: function (this: TUser) {
+         return this.accountType === 'custom';
+      }, 
+      sparse: true, // ⚡ social login এর জন্য
       unique: true,
       default: '',
     },
@@ -72,7 +83,7 @@ const UserSchema = new Schema<TUser, UserModel>(
     },
     accountType: {
       type: String,
-      enum: ['custom', 'google', 'facebook'],
+      enum: ['custom', 'google', 'facebook', 'linkedin'],
       default: 'custom',
     },
     // role: {
@@ -89,7 +100,9 @@ const UserSchema = new Schema<TUser, UserModel>(
     gender: {
       type: String,
       enum: ['Male', 'Female'],
-      required: true,
+      required: function (this: TUser) {
+        return this.accountType === 'custom';
+      }, 
     },
     subscription: {
       plan: {

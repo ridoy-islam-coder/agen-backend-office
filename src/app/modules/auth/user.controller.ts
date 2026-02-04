@@ -10,6 +10,7 @@ import bcrypt from 'bcrypt';
 import config from '../../config';
 import sendResponse from '../../utils/sendResponse';
 import { authServices, userResetPasswordService, } from './user.service';
+import { UserRole } from '../user/user.interface';
 // import { AuthServices } from './user.service';
 
 
@@ -464,8 +465,9 @@ export const facebookLogin = catchAsync(
       user = await User.create({
         email: finalEmail,
         fullName: name,
+        accountType: 'facebook', // অবশ্যই দিতে হবে
         isVerified: true,
-        provider: 'facebook', // optional but recommended
+        role: UserRole.customer,
       });
     }
 
@@ -495,82 +497,6 @@ export const facebookLogin = catchAsync(
     });
   },
 );
-
-
-
-
-
-// ---------------- LinkedIn Login API ----------------
-export const linkedInLogin = catchAsync(async (req: Request, res: Response) => {
-  const { accessToken } = req.body;
-
-  // 1️⃣ Check if Access Token is provided
-  if (!accessToken) {
-    throw new AppError(httpStatus.BAD_REQUEST, "LinkedIn accessToken is required");
-  }
-
-  try {
-    // 2️⃣ Fetch user profile from LinkedIn
-    const profileRes = await axios.get("https://api.linkedin.com/v2/me", {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-
-    const emailRes = await axios.get(
-      "https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))",
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-
-    const email = emailRes.data.elements[0]["handle~"].emailAddress;
-    const name = `${profileRes.data.localizedFirstName} ${profileRes.data.localizedLastName}`;
-
-    if (!email) {
-      throw new AppError(httpStatus.BAD_REQUEST, "Unable to get email from LinkedIn");
-    }
-
-    // 3️⃣ Check if user exists in DB
-    let user = await User.findOne({ email });
-
-    // 4️⃣ If not, create new user
-    if (!user) {
-      user = await User.create({
-        email,
-        fullName: name,
-        isVerified: true,
-      });
-    }
-
-    // 5️⃣ Generate JWT access & refresh tokens
-    const accessTokenJwt = jwt.sign(
-      { id: user._id, role: user.role },
-      config.jwt.jwt_access_secret as Secret,
-      { expiresIn: "24h" }
-    );
-
-    const refreshToken = jwt.sign(
-      { id: user._id, role: user.role },
-      config.jwt.jwt_refresh_secret as Secret,
-      { expiresIn: "7d" }
-    );
-
-    // 6️⃣ Send response
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "LinkedIn login successful",
-      data: {
-        user,
-        accessToken: accessTokenJwt,
-        refreshToken,
-      },
-    });
-  } catch (err) {
-    console.error(err);
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, "LinkedIn login failed");
-  }
-});
-
-
-
 
 
 

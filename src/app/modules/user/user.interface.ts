@@ -42,7 +42,7 @@ export interface TUser {
   isActive: boolean;
   isDeleted: boolean;
   verification: Verification;
-  accountType?: 'custom' | 'google';
+  accountType?: 'custom' | 'google' | 'facebook' | 'linkedin';
   countryCode: string;
   fcmToken?: string;
 }
