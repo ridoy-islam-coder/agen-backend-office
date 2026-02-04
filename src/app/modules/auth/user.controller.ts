@@ -366,58 +366,135 @@ const refreshToken = catchAsync(async (req: Request, res: Response) => {
 //   });
 // });
 
-const facebookLogin = catchAsync(async (req: Request, res: Response) => {
-  const { accessToken } = req.body;
-  if (!accessToken) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Facebook accessToken is required',
-    );
-  }
+// const facebookLogin = catchAsync(async (req: Request, res: Response) => {
+//   const { accessToken } = req.body;
+//   if (!accessToken) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       'Facebook accessToken is required',
+//     );
+//   }
 
-  // Verify token and get user info from Facebook
-  const fbRes = await axios.get(
-    `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`,
-  );
-  const { email, name } = fbRes.data;
-  if (!email) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      'Unable to get email from Facebook',
-    );
-  }
+//   // Verify token and get user info from Facebook
+//   const fbRes = await axios.get(
+//     `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`,
+//   );
 
-  let user = await User.findOne({ email });
-  if (!user) {
-    user = await User.create({
-      email,
-      fullName: name,
-      isVerified: true,
+//   console.log('FB DATA:', fbRes.data);
+
+//   const { email, name } = fbRes.data;
+//   if (!email) {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       'Unable to get email from Facebook',
+//     );
+//   }
+
+//   let user = await User.findOne({ email });
+//   if (!user) {
+//     user = await User.create({
+//       email,
+//       fullName: name,
+//       isVerified: true,
+//     });
+//   }
+
+//   const accessTokenJwt = jwt.sign(
+//     { id: user._id, role: user.role },
+//     config.jwt.jwt_access_secret as Secret,
+//     { expiresIn: '24h' },
+//   );
+//   const refreshToken = jwt.sign(
+//     { id: user._id, role: user.role },
+//     config.jwt.jwt_refresh_secret as Secret,
+//     { expiresIn: '7d' },
+//   );
+
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: 'Facebook login successful',
+//     data: {
+//       user,
+//       accessToken: accessTokenJwt,
+//       refreshToken,
+//     },
+//   });
+// });
+
+
+
+
+
+
+
+export const facebookLogin = catchAsync(
+  async (req: Request, res: Response) => {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'Facebook accessToken is required',
+      );
+    }
+
+    // 🔹 Get user info from Facebook
+    const fbRes = await axios.get(
+      'https://graph.facebook.com/me',
+      {
+        params: {
+          fields: 'id,name,email',
+          access_token: accessToken,
+        },
+      },
+    );
+
+    console.log('FB DATA:', fbRes.data);
+
+    const { id, name, email } = fbRes.data;
+
+    // 🔹 Fallback email (VERY IMPORTANT)
+    const finalEmail = email || `${id}@facebook.com`;
+
+    // 🔹 Find or create user
+    let user = await User.findOne({ email: finalEmail });
+
+    if (!user) {
+      user = await User.create({
+        email: finalEmail,
+        fullName: name,
+        isVerified: true,
+        provider: 'facebook', // optional but recommended
+      });
+    }
+
+    // 🔹 Generate JWT tokens
+    const accessTokenJwt = jwt.sign(
+      { id: user._id, role: user.role },
+      config.jwt.jwt_access_secret as Secret,
+      { expiresIn: '24h' },
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id, role: user.role },
+      config.jwt.jwt_refresh_secret as Secret,
+      { expiresIn: '7d' },
+    );
+
+    // 🔹 Send response
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Facebook login successful',
+      data: {
+        user,
+        accessToken: accessTokenJwt,
+        refreshToken,
+      },
     });
-  }
-
-  const accessTokenJwt = jwt.sign(
-    { id: user._id, role: user.role },
-    config.jwt.jwt_access_secret as Secret,
-    { expiresIn: '24h' },
-  );
-  const refreshToken = jwt.sign(
-    { id: user._id, role: user.role },
-    config.jwt.jwt_refresh_secret as Secret,
-    { expiresIn: '7d' },
-  );
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Facebook login successful',
-    data: {
-      user,
-      accessToken: accessTokenJwt,
-      refreshToken,
-    },
-  });
-});
+  },
+);
 
 
 
