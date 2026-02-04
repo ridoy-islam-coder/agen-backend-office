@@ -12,6 +12,8 @@ import sendResponse from '../../utils/sendResponse';
 import { authServices, userResetPasswordService, } from './user.service';
 import { UserRole } from '../user/user.interface';
 // import { AuthServices } from './user.service';
+import * as appleSignin from 'apple-signin-auth';
+import { ApplePayload } from './user.interface';
 
 
 
@@ -568,9 +570,74 @@ const linkedInLogin = catchAsync(async (req: Request, res: Response) => {
 
 
 
+export const appleLogin = catchAsync(async (req: Request, res: Response) => {
+  const { identityToken } = req.body;
 
+  if (!identityToken) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Apple identity token is required');
+  }
 
+  // 🔹 Verify the Apple JWT
+  let applePayload: ApplePayload;
+  try {
+    applePayload = await appleSignin.verifyIdToken(identityToken, {
+      audience: config.apple.client_id, // Bundle ID (iOS) or Service ID (Web)
+      ignoreExpiration: false,
+    }) as ApplePayload;
+  } catch (err) {
+    throw new AppError(httpStatus.UNAUTHORIZED, 'Invalid Apple identity token');
+  }
 
+  console.log('Apple payload:', applePayload);
+
+  const { sub: appleId, email, name } = applePayload;
+
+  // 🔹 Fallback email if Apple doesn't provide it
+  const finalEmail = email || `${appleId}@apple.com`;
+
+  // 🔹 Find existing user
+  let user = await User.findOne({ email: finalEmail });
+
+  // 🔹 Create user if not found
+  if (!user) {
+    const fullName = name?.firstName
+      ? `${name.firstName} ${name.lastName || ''}`
+      : 'Apple User';
+
+    user = await User.create({
+      email: finalEmail,
+      fullName,
+      accountType: 'apple',
+      isVerified: true,
+      role: UserRole.customer,
+    });
+  }
+
+  // 🔹 Generate JWT tokens
+  const accessTokenJwt = jwt.sign(
+    { id: user._id, role: user.role },
+    config.jwt.jwt_access_secret as Secret,
+    { expiresIn: '24h' }
+  );
+
+  const refreshToken = jwt.sign(
+    { id: user._id, role: user.role },
+    config.jwt.jwt_refresh_secret as Secret,
+    { expiresIn: '7d' }
+  );
+
+  // 🔹 Send response
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Apple login successful',
+    data: {
+      user,
+      accessToken: accessTokenJwt,
+      refreshToken,
+    },
+  });
+});
 
 
 
@@ -654,5 +721,6 @@ export const authControllers = {
   googleLogin,
   facebookLogin,
   userRegistration,
+  appleLogin,
   verifyEmailController,
 };

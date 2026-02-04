@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import * as appleSignin from 'apple-signin-auth';
 export type QueryObject = {
   [key: string]: any;
 };
@@ -28,4 +29,12 @@ export type TRegister = {
   phoneNumber: string;
   countryCode: string;
   gender: 'Male' | 'Female';
+}
+
+// Extend Apple payload type to include optional name
+ export interface ApplePayload extends appleSignin.AppleIdTokenType {
+  name?: {
+    firstName?: string;
+    lastName?: string;
+  };
 }

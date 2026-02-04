@@ -22,6 +22,12 @@ export default {
           jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
           jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRE_IN,
      },
+      
+     apple:{
+          client_id: process.env.APPLE_CLIENT_ID,
+          team_id: process.env.APPLE_TEAM_ID,
+          key_id: process.env.APPLE_KEY_ID,
+     },
 
      email: {
           email_header: process.env.EMAIL_HEADER_NAME,

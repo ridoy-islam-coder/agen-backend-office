@@ -5,6 +5,8 @@ import { USER_ROLE } from "../user/user.constant";
 import { authValidation } from "./auth.validation"; 
 import { authControllers } from "./user.controller";
 
+
+
 const router = Router();
 router.post('/userRegistration',validateRequest(authValidation.registerZodSchema), authControllers.userRegistration,);
 router.post('/verifyEmail',validateRequest(authValidation.verifyEmailZodSchema), authControllers.verifyEmailController,);
@@ -13,6 +15,7 @@ router.post( '/refresh-token',validateRequest(authValidation.refreshTokenValidat
 router.post('/google', authControllers.googleLogin);
 router.post('/facebook', authControllers.facebookLogin);
 router.post('/linkedin', authControllers.linkedInLogin);
+router.post('/appleLogin', authControllers.appleLogin);
 
 router.post('/codeVerification', authControllers.codeVerification,);
 router.post('/userVerifyOtp', authControllers.verifyOtpController,);
