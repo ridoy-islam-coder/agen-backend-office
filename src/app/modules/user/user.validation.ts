@@ -57,7 +57,7 @@ const createUserZodSchema = z.object({
     needsPasswordChange: z.boolean().optional(),
     passwordChangedAt: z.coerce.date().optional(),
     accountType: z
-      .enum(['custom', 'google', 'facebook'])
+      .enum(['custom', 'google', 'facebook', 'linkedin', 'apple'])
       .optional()
       .default('custom'),
     isActive: z.boolean().optional().default(true),

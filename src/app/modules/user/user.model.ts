@@ -83,7 +83,7 @@ const UserSchema = new Schema<TUser, UserModel>(
     },
     accountType: {
       type: String,
-      enum: ['custom', 'google', 'facebook', 'linkedin'],
+      enum: ['custom', 'google', 'facebook', 'linkedin', 'apple'],
       default: 'custom',
     },
     // role: {
