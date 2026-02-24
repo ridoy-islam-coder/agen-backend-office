@@ -3,6 +3,7 @@ import { Router } from 'express';
 import { adminControllers } from './admin.controller';
 // import upload from '../../../middleware/fileUpload';
 import auth from '../../../middleware/auth.middleware';
+import { getYoutubeChannelDataController } from './admin.service';
 
 const router = Router();
 
@@ -24,5 +25,8 @@ router.patch(
 router.post('/forgot-password', adminControllers.forgotPassword);
 router.post('/verify-otp', adminControllers.verifyOtp);
 router.post('/reset-password', adminControllers.resetPassword);
+
+
+router.get("/youtube/:username",getYoutubeChannelDataController);
 
 export const adminRoutes = router;
